@@ -1,0 +1,414 @@
+{
+    "zabbix_export": {
+        "version": "6.4",
+        "template_groups": [
+            {
+                "uuid": "36bff6c29af64692839d077febfc7079",
+                "name": "Templates/Network devices"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "38651c3e18bd424fb22391b93cf04995",
+                "template": "Dell Optical interfaces energy and dBm and Volt power discovery",
+                "name": "Dell Optical interfaces energy and dBm and Volt power discovery",
+                "description": "Dell Optical interface discovery\n\nThis template discovers all optical interfaces and adds \n- The actual optical receive power in dBm\n- The actual optical transmit power in dBm\n- The actual voltage of the interface im mA\n- The actual current of the interface in Volt\n\n\n\nI have tested this template on a Dell Z9100-ON switch\n\nUsed oid Found at:\n\nhttp://www.circitor.fr/Mibs/Html/D/DELL-NETWORKING-IF-EXTENSION-MIB.php#DellNetIfTransceiverDataEntry\n\nand found at:\nhttps://mibs.observium.org/mib/DELL-NETWORKING-IF-EXTENSION-MIB/#dellNetIfTransVoltage",
+                "groups": [
+                    {
+                        "name": "Templates/Network devices"
+                    }
+                ],
+                "discovery_rules": [
+                    {
+                        "uuid": "178a5d907364490d95300549034b54a6",
+                        "name": "Optical interface discovery",
+                        "type": "SNMP_AGENT",
+                        "snmp_oid": "discovery[{#PORTNAME},1.3.6.1.4.1.6027.3.11.1.3.1.1.2,{#PORTDEFENITION},1.3.6.1.4.1.6027.3.11.1.3.1.1.1,{#OPTICPRESENT},1.3.6.1.4.1.6027.3.11.1.3.1.1.3]",
+                        "key": "net.if.trans.opt.discovery",
+                        "delay": "1d",
+                        "filter": {
+                            "evaltype": "FORMULA",
+                            "formula": "(A and B)",
+                            "conditions": [
+                                {
+                                    "macro": "{#OPTICPRESENT}",
+                                    "value": "1",
+                                    "formulaid": "A"
+                                },
+                                {
+                                    "macro": "{#OPTICPRESENT}",
+                                    "value": "2",
+                                    "operator": "NOT_MATCHES_REGEX",
+                                    "formulaid": "B"
+                                }
+                            ]
+                        },
+                        "item_prototypes": [
+                            {
+                                "uuid": "628b280020954b9483cf38510be9775e",
+                                "name": "Port-{#PORTNAME} Transceiver brand",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.5.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.discovery.brand[dellNetIfTransVendorName{#PORTNAME}]",
+                                "delay": "1d",
+                                "trends": "0",
+                                "value_type": "TEXT"
+                            },
+                            {
+                                "uuid": "9ec81923c52d4e9a89e616ffabd8b2fc",
+                                "name": "Port-{#PORTNAME} Optic present",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.3.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.discovery.optics.present[dellNetIfTransOpticsPresent{#PORTNAME}]",
+                                "delay": "1d",
+                                "valuemap": {
+                                    "name": "Optic Present"
+                                }
+                            },
+                            {
+                                "uuid": "0a11b7d95903453889342e3183cc4ac6",
+                                "name": "Port-{#PORTNAME} Transceiver type",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.4.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.discovery.type[dellNetIfTransOpticsType{#PORTNAME}]",
+                                "delay": "1d",
+                                "trends": "0",
+                                "value_type": "TEXT"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "5c26a4d14208450d895896c93945acd5",
+                        "name": "Optical interface temperature discovery",
+                        "type": "SNMP_AGENT",
+                        "snmp_oid": "discovery[{#PORTNAME},1.3.6.1.4.1.6027.3.11.1.3.1.1.2,{#PORTDEFENITION},1.3.6.1.4.1.6027.3.11.1.3.1.1.1,{#OPTICPRESENT},1.3.6.1.4.1.6027.3.11.1.3.1.1.3,{#OPTICTEMERATURE},1.3.6.1.4.1.6027.3.11.1.3.1.1.16]",
+                        "key": "net.if.trans.opt.discovery.temperature",
+                        "delay": "1d",
+                        "filter": {
+                            "evaltype": "FORMULA",
+                            "formula": "(A and B)",
+                            "conditions": [
+                                {
+                                    "macro": "{#OPTICPRESENT}",
+                                    "value": "1",
+                                    "formulaid": "A"
+                                },
+                                {
+                                    "macro": "{#OPTICTEMERATURE}",
+                                    "value": "^$",
+                                    "operator": "NOT_MATCHES_REGEX",
+                                    "formulaid": "B"
+                                }
+                            ]
+                        },
+                        "description": "I added this as a seperated discovery because not all SFP modules are able to read the temerature.\n\ndellNetIfTransTemperature \n1.3.6.1.4.1.6027.3.11.1.3.1.1.16\nTransceiverData - Temperature in unit degree Celsius. For optics supporting temperature, valid float value will be displayed or 'null string' will be displayed.",
+                        "item_prototypes": [
+                            {
+                                "uuid": "c40ca51bbd894a0b9b62993d679b93e8",
+                                "name": "Port-{#PORTNAME} Optic temperature",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.16.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.discovery.optics.temperature[dellNetIfTransTemperature{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "\u00b0C",
+                                "description": "dellNetIfTransTemperature \n1.3.6.1.4.1.6027.3.11.1.3.1.1.16\nTransceiverData - Temperature in unit degree Celsius. For optics supporting temperature, valid float value will be displayed or 'null string' will be displayed."
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "44ba39cfb3984ab498c8dac3286e0433",
+                        "name": "Optical interface voltage discovery",
+                        "type": "SNMP_AGENT",
+                        "snmp_oid": "discovery[{#PORTNAME},1.3.6.1.4.1.6027.3.11.1.3.1.1.2,{#PORTDEFENITION},1.3.6.1.4.1.6027.3.11.1.3.1.1.1,{#OPTICPRESENT},1.3.6.1.4.1.6027.3.11.1.3.1.1.3,{#OPTICVOLTAGE},1.3.6.1.4.1.6027.3.11.1.3.1.1.17]",
+                        "key": "net.if.trans.opt.discovery.voltage",
+                        "delay": "1d",
+                        "filter": {
+                            "evaltype": "FORMULA",
+                            "formula": "(A and B)",
+                            "conditions": [
+                                {
+                                    "macro": "{#OPTICPRESENT}",
+                                    "value": "1",
+                                    "formulaid": "A"
+                                },
+                                {
+                                    "macro": "{#OPTICVOLTAGE}",
+                                    "value": "^$",
+                                    "operator": "NOT_MATCHES_REGEX",
+                                    "formulaid": "B"
+                                }
+                            ]
+                        },
+                        "description": "I added this as a seperated discovery because not all SFP modules are able to read the voltage.",
+                        "item_prototypes": [
+                            {
+                                "uuid": "0bdfd7c5101d41f891a6a32e0db67237",
+                                "name": "Port-{#PORTNAME} Optic voltage",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.17.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.discovery.voltage[dellNetIfTransVoltage{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "Volt"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "732066c2b9964346bd5a111754153ef1",
+                        "name": "Optical Lane 1 Discovery",
+                        "type": "SNMP_AGENT",
+                        "snmp_oid": "discovery[{#PORTNAME},1.3.6.1.4.1.6027.3.11.1.3.1.1.2,{#OPTICPRESENT},1.3.6.1.4.1.6027.3.11.1.3.1.1.3,{#POWERTRANSMITLANE1},1.3.6.1.4.1.6027.3.11.1.3.1.1.8]",
+                        "key": "net.if.trans.opt.powerlane1.discovery",
+                        "delay": "1d",
+                        "filter": {
+                            "conditions": [
+                                {
+                                    "macro": "{#OPTICPRESENT}",
+                                    "value": "1",
+                                    "formulaid": "A"
+                                },
+                                {
+                                    "macro": "{#POWERTRANSMITLANE1}",
+                                    "value": "^$",
+                                    "operator": "NOT_MATCHES_REGEX",
+                                    "formulaid": "B"
+                                }
+                            ]
+                        },
+                        "item_prototypes": [
+                            {
+                                "uuid": "4f1cdf5878f348e6aa52a815ae2f4f9b",
+                                "name": "Port-{#PORTNAME}-lane 1 Receive power",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.12.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.powerlane1.discovery.receive[dellNetIfTransReceivePowerLane1{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "dBm",
+                                "description": "TransceiverData - Receive Power in Lane 1 in unit dBm. For optics supporting power, valid float value will be displayed or 'null string' will be displayed."
+                            },
+                            {
+                                "uuid": "a9fd7be907d44f11aeab6312a451318b",
+                                "name": "Port-{#PORTNAME}-lane 1 Transmit bias current",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.18.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.powerlane1.discovery.transmit.bias.current[dellNetIfTransTransmitBiasCurrentLane1{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "mA",
+                                "description": "TransceiverData - Transmit Bias Current in Lane 1 in unit mA. For optics supporting current, valid float value will be displayed or 'null string' will be displayed."
+                            },
+                            {
+                                "uuid": "08c0e5570fcf42ba9fe1707b2ca51630",
+                                "name": "Port-{#PORTNAME}-lane 1 Transmit power",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.8.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.powerlane1.discovery.transmit[dellNetIfTransTransmitPowerLane1{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "dBm"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "62e75fb7a7764e96a56ed8225c23421c",
+                        "name": "Optical Lane 2 Discovery",
+                        "type": "SNMP_AGENT",
+                        "snmp_oid": "discovery[{#PORTNAME},1.3.6.1.4.1.6027.3.11.1.3.1.1.2,{#OPTICPRESENT},1.3.6.1.4.1.6027.3.11.1.3.1.1.3,{#POWERTRANSMITLANE2},1.3.6.1.4.1.6027.3.11.1.3.1.1.9]",
+                        "key": "net.if.trans.opt.powerlane2.discovery",
+                        "delay": "1d",
+                        "filter": {
+                            "conditions": [
+                                {
+                                    "macro": "{#OPTICPRESENT}",
+                                    "value": "1",
+                                    "formulaid": "A"
+                                },
+                                {
+                                    "macro": "{#POWERTRANSMITLANE2}",
+                                    "value": "^$",
+                                    "operator": "NOT_MATCHES_REGEX",
+                                    "formulaid": "B"
+                                }
+                            ]
+                        },
+                        "item_prototypes": [
+                            {
+                                "uuid": "d3df94864b3e4835b43f3bb42145249b",
+                                "name": "Port-{#PORTNAME}-lane 2 Receive power",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.13.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.powerlane2.discovery.receive[dellNetIfTransReceivePowerLane2{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "dBm",
+                                "description": "dellNetIfTransReceivePowerLane2 \t\n1.3.6.1.4.1.6027.3.11.1.3.1.1.13\nTransceiverData - Receive Power in Lane 2 in unit dBm. For optics supporting power, valid float value will be displayed or 'null string' will be displayed."
+                            },
+                            {
+                                "uuid": "44c3a1ce6db5457c94d3faf01ab477e0",
+                                "name": "Port-{#PORTNAME}-lane 2 Transmit bias current",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.19.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.powerlane2.discovery.transmit.bias.current[dellNetIfTransTransmitBiasCurrentLane2{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "mA",
+                                "description": "dellNetIfTransTransmitBiasCurrentLane2\n1.3.6.1.4.1.6027.3.11.1.3.1.1.19\n\nTransceiverData - Transmit Bias Current in Lane 2 in unit mA. For optics supporting current, valid float value will be displayed or 'null string' will be displayed."
+                            },
+                            {
+                                "uuid": "ac08a10fce0240e1957cb6df2996a444",
+                                "name": "Port-{#PORTNAME}-lane 2 Transmit power",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.9.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.powerlane2.discovery.transmit[dellNetIfTransTransmitPowerLane2{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "dBm",
+                                "description": "dellNetIfTransTransmitPowerLane2 \n1.3.6.1.4.1.6027.3.11.1.3.1.1.9\n\nTransceiverData - Transmit Power in Lane 2 in unit dBm. For optics supporting power, valid float value will be displayed or 'null string' will be displayed."
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "9bffcc9f72264c7d882a72a86d8422d2",
+                        "name": "Optical Lane 3 Discovery",
+                        "type": "SNMP_AGENT",
+                        "snmp_oid": "discovery[{#PORTNAME},1.3.6.1.4.1.6027.3.11.1.3.1.1.2,{#OPTICPRESENT},1.3.6.1.4.1.6027.3.11.1.3.1.1.3,{#POWERTRANSMITLANE3},1.3.6.1.4.1.6027.3.11.1.3.1.1.10]",
+                        "key": "net.if.trans.opt.powerlane3.discovery",
+                        "delay": "1d",
+                        "filter": {
+                            "conditions": [
+                                {
+                                    "macro": "{#OPTICPRESENT}",
+                                    "value": "1",
+                                    "formulaid": "A"
+                                },
+                                {
+                                    "macro": "{#POWERTRANSMITLANE3}",
+                                    "value": "^$",
+                                    "operator": "NOT_MATCHES_REGEX",
+                                    "formulaid": "B"
+                                }
+                            ]
+                        },
+                        "item_prototypes": [
+                            {
+                                "uuid": "7461787621264c349a73e7cb603a5b9d",
+                                "name": "Port-{#PORTNAME}-lane 3 Receive power",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.14.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.powerlane3.discovery.receive[dellNetIfTransReceivePowerLane3{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "dBm",
+                                "description": "dellNetIfTransReceivePowerLane3 \n1.3.6.1.4.1.6027.3.11.1.3.1.1.14\nTransceiverData - Receive Power in Lane 3 in unit dBm. For optics supporting power, valid float value will be displayed or 'null string' will be displayed."
+                            },
+                            {
+                                "uuid": "234c40288cf64ffcab02795bac4490e3",
+                                "name": "Port-{#PORTNAME}-lane 3 Transmit bias current",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.20.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.powerlane3.discovery.transmit.bias.current[dellNetIfTransTransmitBiasCurrentLane3{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "mA",
+                                "description": "dellNetIfTransTransmitBiasCurrentLane3 \n1.3.6.1.4.1.6027.3.11.1.3.1.1.20\nTransceiverData - Transmit Bias Current in Lane 3 in unit mA. For optics supporting current, valid float value will be displayed or 'null string' will be displayed."
+                            },
+                            {
+                                "uuid": "ed549d4555b24a0d9009a9b5859b1db0",
+                                "name": "Port-{#PORTNAME}-lane 3 Transmit power",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.14.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.powerlane3.discovery.transmit[dellNetIfTransTransmitPowerLane3{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "dBm",
+                                "description": "dellNetIfTransReceivePowerLane3\n1.3.6.1.4.1.6027.3.11.1.3.1.1.14\nTransceiverData - Receive Power in Lane 3 in unit dBm. For optics supporting power, valid float value will be displayed or 'null string' will be displayed."
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "0f59d93f51e54101a56c9e2ab1408676",
+                        "name": "Optical Lane 4 Discovery",
+                        "type": "SNMP_AGENT",
+                        "snmp_oid": "discovery[{#PORTNAME},1.3.6.1.4.1.6027.3.11.1.3.1.1.2,{#OPTICPRESENT},1.3.6.1.4.1.6027.3.11.1.3.1.1.3,{#POWERTRANSMITLANE4},1.3.6.1.4.1.6027.3.11.1.3.1.1.11]",
+                        "key": "net.if.trans.opt.powerlane4.discovery",
+                        "delay": "1d",
+                        "filter": {
+                            "conditions": [
+                                {
+                                    "macro": "{#OPTICPRESENT}",
+                                    "value": "1",
+                                    "formulaid": "A"
+                                },
+                                {
+                                    "macro": "{#POWERTRANSMITLANE4}",
+                                    "value": "^$",
+                                    "operator": "NOT_MATCHES_REGEX",
+                                    "formulaid": "B"
+                                }
+                            ]
+                        },
+                        "item_prototypes": [
+                            {
+                                "uuid": "2347260f340f4719a3b5a78c6b839930",
+                                "name": "Port-{#PORTNAME}-lane 4 Receive power",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.15.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.powerlane4.discovery.receive[dellNetIfTransReceivePowerLane4{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "dBm",
+                                "description": "dellNetIfTransReceivePowerLane4 \n1.3.6.1.4.1.6027.3.11.1.3.1.1.15\nTransceiverData - Receive Power in Lane 4 in unit dBm. For optics supporting power, valid float value will be displayed or 'null string' will be displayed."
+                            },
+                            {
+                                "uuid": "de5c8bbb61f64e42ae51f9c3524af707",
+                                "name": "Port-{#PORTNAME}-lane 4 Transmit bias current",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.21.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.powerlane4.discovery.transmit.bias.current[dellNetIfTransTransmitBiasCurrentLane4{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "mA",
+                                "description": "dellNetIfTransTransmitBiasCurrentLane4 \n1.3.6.1.4.1.6027.3.11.1.3.1.1.21\nTransceiverData - Transmit Bias Current in Lane 4 in unit mA. For optics supporting current, valid float value will be displayed or 'null string' will be displayed."
+                            },
+                            {
+                                "uuid": "50fdd06b563a4d65b379ad93ae9ffdfd",
+                                "name": "Port-{#PORTNAME}-lane 4 Transmit power",
+                                "type": "SNMP_AGENT",
+                                "snmp_oid": "1.3.6.1.4.1.6027.3.11.1.3.1.1.11.{#SNMPINDEX}",
+                                "key": "net.if.trans.opt.powerlane4.discovery.transmit[dellNetIfTransTransmitPowerLane4{#PORTNAME}]",
+                                "delay": "{$OPTICALUPDATEINTERVAL}",
+                                "value_type": "FLOAT",
+                                "units": "dBm",
+                                "description": "dellNetIfTransTransmitPowerLane4\n1.3.6.1.4.1.6027.3.11.1.3.1.1.11\nTransceiverData - Transmit Power in Lane 4 in unit dBm. For optics supporting power, valid float value will be displayed or 'null string' will be displayed."
+                            }
+                        ]
+                    }
+                ],
+                "macros": [
+                    {
+                        "macro": "{$OPTICALUPDATEINTERVAL}",
+                        "value": "15m"
+                    }
+                ],
+                "valuemaps": [
+                    {
+                        "uuid": "f05ffe05702945a4adccf82c6023a844",
+                        "name": "Optic Present",
+                        "mappings": [
+                            {
+                                "value": "1",
+                                "newvalue": "Optic inserted"
+                            },
+                            {
+                                "value": "2",
+                                "newvalue": "No optic inserted"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
