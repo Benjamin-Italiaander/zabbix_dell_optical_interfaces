@@ -1,5 +1,5 @@
 # Zabbix template for optical interfaces on a dell switch
-[Link to project page](https://github.com/Benjamin-Italiaander/zabbix_dell_optical_interfaces){:target="_blank"}
+[Link to project page](https://github.com/Benjamin-Italiaander/zabbix_dell_optical_interfaces){target="_blank"}
 Dell Optical interface discovery
 
 This template discovers all optical interfaces and adds them to your host items.
