@@ -16,11 +16,7 @@ By default it runs a query every 15 min. You can change the interval time by cha
 
 I did build and test this template on a Dell Z9100-ON switch.
 
-The oid's i Used i found at:
-[here](http://www.circitor.fr/Mibs/Html/D/DELL-NETWORKING-IF-EXTENSION-MIB.php#DellNetIfTransceiverDataEntry)
-
-and
-[here](https://mibs.observium.org/mib/DELL-NETWORKING-IF-EXTENSION-MIB/#dellNetIfTransVoltage)
+The oid's i Used i found [here](http://www.circitor.fr/Mibs/Html/D/DELL-NETWORKING-IF-EXTENSION-MIB.php#DellNetIfTransceiverDataEntry) and [here](https://mibs.observium.org/mib/DELL-NETWORKING-IF-EXTENSION-MIB/#dellNetIfTransVoltage)
 
 
 
