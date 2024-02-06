@@ -9,6 +9,9 @@ This template discovers all optical interfaces and adds them to your host items.
 - The actual optical transmit power in dBm
 - The actual voltage of the interface im mA
 - The actual current of the interface in Volt
+- The actual temperature of the interface in celcius degree
+
+By default it does a query every 15 min. You can change the interval time by changing the macro value {$OPTICALUPDATEINTERVAL}
 
 
 I did build and test this template on a Dell Z9100-ON switch.
